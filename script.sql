@@ -128,3 +128,20 @@ select insurance_categorical.bmi_category, count(*) as bmi_category_count from i
 join insurance_categorical on insurance.patient_id = insurance_categorical.patient_id
 group by insurance_categorical.bmi_category;
 -- quite imbalanced (Underweight: 21, Normal: 226, Overweight: 386, Obese: 703) mean = 334
+
+
+-- men vs. women bmi --
+select insurance.sex, insurance_categorical.bmi_category, count(*) as count from insurance
+join insurance_categorical on insurance.patient_id = insurance_categorical.patient_id
+group by insurance.sex, insurance_categorical.bmi_category
+order by insurance.sex;
+-- much more even than imagined, man this would hit different if i could see the race of these individuals as well --
+
+-- might be dealing with a duplicate issue; there's a one row difference that i don't care enough to find icl --
+select insurance.age, insurance.sex, insurance.bmi, insurance.children, insurance.smoker, insurance.region, insurance.charges, insurance_categorical.age_category, insurance_categorical.bmi_category, count(*) as count 
+from insurance
+join insurance_categorical on insurance.patient_id = insurance_categorical.patient_id
+group by insurance.age, insurance.sex, insurance.bmi, insurance.children, insurance.smoker, insurance.region, insurance.charges, insurance_categorical.age_category, insurance_categorical.bmi_category
+having count(*) > 1;
+
+
