@@ -33,17 +33,17 @@ or children is null
 or smoker is null 
 or charges is null;
 
-select distinct * from insurance
+select distinct * from insurance;
 
-select * from insurance
+select * from insurance;
 
 -- proves no duplicates; actually will not work bc of the distinct patient_id -- 
 
-select count(*) from insurance
+select count(*) from insurance;
 
 -- data.head() --
 select * from insurance
-limit 10
+limit 10;
 
 -- checking a duplicated value; seems pandas picked up on something sql didn't --
 select * from insurance
@@ -65,7 +65,7 @@ where (age, sex, bmi, children, smoker, region, charges) in (
 
 -- deleting duplicates; ha made a mistake here; needed to only delete one of the rows, not both -- 
 DELETE from insurance
-where patient_id = 582
+where patient_id = 582;
 
 -- verifying --
 select * from insurance
@@ -74,13 +74,57 @@ where (age, sex, bmi, children, smoker, region, charges) in (
     group by age, sex, bmi, children, smoker, region, charges
     having count(*) > 1);
 
-select count(*) from insurance
+select count(*) from insurance;
 
+-- verifying imbalances -- 
 select DISTINCT region, count(*) as region_count from insurance
-group by region
+group by region;
+-- quite balanced (324, 324, 364, 325)  mean is 334 --
 
-select * from insurance
-
--- be careful of this; decent data imbalance -- 
 select DISTINCT smoker, count(*) as smoker_count from insurance
-GROUP BY smoker
+GROUP BY smoker;
+-- heavily imbalanced (1063, 274) mean is 668
+
+select DISTINCT sex, count(*) as sex_count from insurance
+group by sex
+-- balanced (662, 675 ) mean is 668
+
+select DISTINCT children, count(*) as children_count from insurance
+group by children
+ORDER BY children asc;
+-- quite imbalanced (573, 324, 240, 157, 25, 18)  mean = 222 --
+
+-- creating this table to utilize numerical => categorical features to check for "imbalance"
+CREATE TABLE IF NOT EXISTS insurance_categorical (
+    patient_id SERIAL PRIMARY KEY,
+    age INT,
+    sex VARCHAR(10),
+    bmi FLOAT,
+    children INT,
+    smoker VARCHAR(5),
+    region VARCHAR(20),
+    charges FLOAT,
+    age_category VARCHAR(20),
+    bmi_category VARCHAR(20)
+);
+
+-- adding the data --
+COPY insurance_categorical(age, sex, bmi, children, smoker, region, charges, age_category, bmi_category)
+FROM '/Users/mikayla/insurance_ml/data_categorical.csv'
+DELIMITER ','
+CSV HEADER;
+
+select * from insurance_categorical;
+
+-- allows me to run the queries to check for "imbalance"
+select insurance_categorical.age_category, count(*) as age_category_count from insurance
+join insurance_categorical on insurance.patient_id = insurance_categorical.patient_id
+group by insurance_categorical.age_category
+order by insurance_categorical.age_category asc;
+-- balanced (305, 268, 263, 284, 216) mean = 267
+
+-- now looking @ bmi --
+select insurance_categorical.bmi_category, count(*) as bmi_category_count from insurance
+join insurance_categorical on insurance.patient_id = insurance_categorical.patient_id
+group by insurance_categorical.bmi_category;
+-- quite imbalanced (Underweight: 21, Normal: 226, Overweight: 386, Obese: 703) mean = 334
