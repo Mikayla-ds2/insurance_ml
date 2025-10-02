@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS insurance_categorical (
 
 -- adding the data --
 COPY insurance_categorical(age, sex, bmi, children, smoker, region, charges, age_category, bmi_category)
-FROM '/Users/mikayla/insurance_ml/data_categorical.csv'
+FROM '/Users/mikayla/insurance_ml/cleaned_data.csv'
 DELIMITER ','
 CSV HEADER;
 
