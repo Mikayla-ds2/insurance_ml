@@ -144,4 +144,21 @@ join insurance_categorical on insurance.patient_id = insurance_categorical.patie
 group by insurance.age, insurance.sex, insurance.bmi, insurance.children, insurance.smoker, insurance.region, insurance.charges, insurance_categorical.age_category, insurance_categorical.bmi_category
 having count(*) > 1;
 
+CREATE TABLE IF NOT EXISTS insurance_errors (
+    patient_id SERIAL PRIMARY KEY,
+    age INT,
+    sex VARCHAR(10),
+    bmi FLOAT,
+    children INT,
+    smoker VARCHAR(5),
+    region VARCHAR(20),
+    charges FLOAT,
+    age_category VARCHAR(20),
+    bmi_category VARCHAR(20)
+);
 
+-- adding the data --
+COPY insurance_categorical(age, sex, bmi, children, smoker, region, charges, age_category, bmi_category)
+FROM '/Users/mikayla/insurance_ml/cleaned_data.csv'
+DELIMITER ','
+CSV HEADER;
