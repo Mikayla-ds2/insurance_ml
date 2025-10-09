@@ -1,3 +1,4 @@
+-- head of file --
 DROP TABLE IF EXISTS insurance;
 
 CREATE TABLE IF NOT EXISTS insurance (
