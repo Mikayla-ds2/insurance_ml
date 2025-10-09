@@ -96,7 +96,9 @@ ORDER BY children asc;
 -- quite imbalanced (573, 324, 240, 157, 25, 18)  mean = 222 --
 
 -- creating this table to utilize numerical => categorical features to check for "imbalance"
-CREATE TABLE IF NOT EXISTS insurance_categorical (
+drop table if EXISTS insurance_categorical
+
+CREATE TABLE IF NOT EXISTS categorical (
     patient_id SERIAL PRIMARY KEY,
     age INT,
     sex VARCHAR(10),
@@ -106,60 +108,56 @@ CREATE TABLE IF NOT EXISTS insurance_categorical (
     region VARCHAR(20),
     charges FLOAT,
     age_category VARCHAR(20),
-    bmi_category VARCHAR(20)
+    bmi_category VARCHAR(20),
+    charges_category VARCHAR(20)
 );
 
 -- adding the data --
-COPY insurance_categorical(age, sex, bmi, children, smoker, region, charges, age_category, bmi_category)
-FROM '/Users/mikayla/insurance_ml/cleaned_data.csv'
+COPY categorical(age, sex, bmi, children, smoker, region, charges, age_category, bmi_category, charges_category)
+FROM '/tmp/data_categorical.csv'
 DELIMITER ','
 CSV HEADER;
 
-select * from insurance_categorical;
+select * from categorical;
 
 -- allows me to run the queries to check for "imbalance"
-select insurance_categorical.age_category, count(*) as age_category_count from insurance
-join insurance_categorical on insurance.patient_id = insurance_categorical.patient_id
-group by insurance_categorical.age_category
-order by insurance_categorical.age_category asc;
+select categorical.age_category, count(*) as age_category_count from insurance
+join categorical on insurance.patient_id = categorical.patient_id
+group by categorical.age_category
+order by categorical.age_category asc;
 -- balanced (305, 268, 263, 284, 216) mean = 267
 
 -- now looking @ bmi --
-select insurance_categorical.bmi_category, count(*) as bmi_category_count from insurance
-join insurance_categorical on insurance.patient_id = insurance_categorical.patient_id
-group by insurance_categorical.bmi_category;
+select categorical.bmi_category, count(*) as bmi_category_count from insurance
+join categorical on insurance.patient_id = categorical.patient_id
+group by categorical.bmi_category;
 -- quite imbalanced (Underweight: 21, Normal: 226, Overweight: 386, Obese: 703) mean = 334
 
 
 -- men vs. women bmi --
-select insurance.sex, insurance_categorical.bmi_category, count(*) as count from insurance
-join insurance_categorical on insurance.patient_id = insurance_categorical.patient_id
-group by insurance.sex, insurance_categorical.bmi_category
+select insurance.sex, categorical.bmi_category, count(*) as count from insurance
+join categorical on insurance.patient_id = categorical.patient_id
+group by insurance.sex, categorical.bmi_category
 order by insurance.sex;
 -- much more even than imagined, man this would hit different if i could see the race of these individuals as well --
 
 -- might be dealing with a duplicate issue; there's a one row difference that i don't care enough to find icl --
-select insurance.age, insurance.sex, insurance.bmi, insurance.children, insurance.smoker, insurance.region, insurance.charges, insurance_categorical.age_category, insurance_categorical.bmi_category, count(*) as count 
+select insurance.age, insurance.sex, insurance.bmi, insurance.children, insurance.smoker, insurance.region, insurance.charges, categorical.age_category, categorical.bmi_category, count(*) as count 
 from insurance
-join insurance_categorical on insurance.patient_id = insurance_categorical.patient_id
-group by insurance.age, insurance.sex, insurance.bmi, insurance.children, insurance.smoker, insurance.region, insurance.charges, insurance_categorical.age_category, insurance_categorical.bmi_category
+join categorical on insurance.patient_id = categorical.patient_id
+group by insurance.age, insurance.sex, insurance.bmi, insurance.children, insurance.smoker, insurance.region, insurance.charges, categorical.age_category, categorical.bmi_category
 having count(*) > 1;
 
-CREATE TABLE IF NOT EXISTS insurance_errors (
-    patient_id SERIAL PRIMARY KEY,
-    age INT,
-    sex VARCHAR(10),
-    bmi FLOAT,
-    children INT,
-    smoker VARCHAR(5),
-    region VARCHAR(20),
-    charges FLOAT,
-    age_category VARCHAR(20),
-    bmi_category VARCHAR(20)
+CREATE TABLE IF NOT EXISTS errors (
+   true_value FLOAT,
+   predicted_value FLOAT,
+   error FLOAT,
+   abs_error FLOAT,
+   pct_error FLOAT
 );
 
 -- adding the data --
-COPY insurance_categorical(age, sex, bmi, children, smoker, region, charges, age_category, bmi_category)
-FROM '/Users/mikayla/insurance_ml/cleaned_data.csv'
+COPY insurance_errors(true_value, predicted_value, error, abs_error, pct_error)
+FROM '/tmp/cleaned_data.csv'
 DELIMITER ','
 CSV HEADER;
