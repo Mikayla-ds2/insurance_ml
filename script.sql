@@ -1,3 +1,4 @@
+-- Active: 1758170477555@@127.0.0.1@5432
 DROP TABLE IF EXISTS insurance;
 
 CREATE TABLE IF NOT EXISTS insurance (
@@ -15,8 +16,8 @@ SELECT column_name, data_type
 FROM information_schema.columns
 WHERE table_name = 'insurance';
 
-COPY insurance(age, sex, bmi, children, smoker, region, charges)
-FROM '/Users/mikayla/insurance_ml/insurance.csv'
+/COPY insurance(age, sex, bmi, children, smoker, region, charges)
+FROM '/tmp/insurance.csv'
 DELIMITER ','
 CSV HEADER;
 
