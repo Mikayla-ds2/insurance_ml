@@ -112,6 +112,10 @@ CREATE TABLE IF NOT EXISTS categorical (
     charges_category VARCHAR(20)
 );
 
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'categorical';
+
 -- adding the data --
 COPY categorical(age, sex, bmi, children, smoker, region, charges, age_category, bmi_category, charges_category)
 FROM '/tmp/data_categorical.csv'
@@ -148,7 +152,7 @@ join categorical on insurance.patient_id = categorical.patient_id
 group by insurance.age, insurance.sex, insurance.bmi, insurance.children, insurance.smoker, insurance.region, insurance.charges, categorical.age_category, categorical.bmi_category
 having count(*) > 1;
 
-CREATE TABLE IF NOT EXISTS errors (
+CREATE TABLE IF NOT EXISTS errors_dt (
    true_value FLOAT,
    predicted_value FLOAT,
    error FLOAT,
@@ -156,8 +160,38 @@ CREATE TABLE IF NOT EXISTS errors (
    pct_error FLOAT
 );
 
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'errors_dt';
+
 -- adding the data --
-COPY insurance_errors(true_value, predicted_value, error, abs_error, pct_error)
-FROM '/tmp/cleaned_data.csv'
+COPY errors_dt(true_value, predicted_value, error, abs_error, pct_error)
+FROM '/tmp/errors_dt.csv'
 DELIMITER ','
 CSV HEADER;
+
+create table if not exists errors_rf(
+    true_value FLOAT,
+   predicted_value FLOAT,
+   error FLOAT,
+   abs_error FLOAT,
+   pct_error FLOAT
+);
+
+copy errors_rf(true_value, predicted_value, error, abs_error, pct_error)
+from '/tmp/errors_rf.csv'
+DELIMITER ','
+csv HEADER;
+
+create table if not exists errors_nn(
+    true_value FLOAT,
+   predicted_value FLOAT,
+   error FLOAT,
+   abs_error FLOAT,
+   pct_error FLOAT
+);
+
+copy errors_nn(true_value, predicted_value, error, abs_error, pct_error)
+from '/tmp/errors_nn.csv'
+DELIMITER ','
+csv HEADER;
