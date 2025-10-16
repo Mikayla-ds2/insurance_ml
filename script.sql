@@ -195,3 +195,5 @@ copy errors_nn(true_value, predicted_value, error, abs_error, pct_error)
 from '/tmp/errors_nn.csv'
 DELIMITER ','
 csv HEADER;
+
+
